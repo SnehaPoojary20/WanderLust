@@ -40,10 +40,11 @@
     <hr>
       <h4>Leave a review</h4>
       <div class="mb-3 mt-3">
-      <form action="/listings/<%= listing.id%>/reviews" method="POST" novalidate class="needs-validation">
+      <form action="/listings/<%= listing._id%>/reviews" method="POST" novalidate class="needs-validation">
       <label for="rating" class="form-label" >Rating</label>
       <input type="range" min="1" max="5" id="rating" name="review[rating]" class="form-range" >
      </div>
+     
     <div class="mb-3 mt-3">
       <label for="comment"> Comment</label>
       <textarea name="review[comment]" id="comment" cols="30" rows="5" class="form-control" required></textarea>
@@ -73,5 +74,3 @@
   </div>
 </div>
 </div>
-
-  
