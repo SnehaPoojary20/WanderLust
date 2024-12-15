@@ -10,43 +10,25 @@ router.get("/signup",(req,res)=>{
 
 router.post("/signUp",async(req,res)=>{
 
-try{
-    let{username,email,password}=req.body;
-    const newUser= new User({email,username});
-    const registeredUser=User.register(newUser,password);
-    console.log(registeredUser);
+    try
+    {
+    let {username,email,password} = req.body;
+    let newUser =  new User({email,username});
+    let registeredUser = await User.register(newUser,password);
     req.login(registeredUser,(err)=>{
-        if(err){
-            return next(err);
+        if(err)
+        {
+          return next(err);
         }
-        req.flash("sucess","Welcome to WanderLust");
-        res.redirect("/listings");
+        req.flash('success',"Welcome to WanderLust!");
+        res.redirect('/listings');
     })
-    
-}catch(error){
-    req.flash("error",error.message);
-}
+    }
+    catch(err){
+        req.flash('failure',err.message);
+        res.redirect('/signUp');
+    }
 
 });
-
-router.get("/login",(req,res)=>{
-    res.render("users/login.ejs");
-})
-
-router.post("/login", passport.authenticate("local", { failureRedirect: "/login" , 
-    failureFlash:true}),async(req,res)=>{
-    req.flash("sucess","Welcome to WanderLust !! You have Logged In");
-    res.redirectUrl=res.locals.redirectUrl|| "/listings";
-    res.redirect(res.redirectUrl);
-
-});
-
-router.get("logout",(req,res,next)=>{
-  req.logout((err)=>{
-    next(err)
-  })
-  req.flash("sucess","You are logged out now");
-  res.redirect("/listings");
-})
 
 module.exports=router;

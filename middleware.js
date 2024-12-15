@@ -1,4 +1,7 @@
 const Listing= require("./models/listing.js")
+const ExpressError=require( "./utils/ExpressErrors.js");
+const {listingSchema,reviewSchema}=require("./Schema.js");
+
 
 module.exports.isLoggedin=(req,res,next)=>{
  
@@ -18,11 +21,37 @@ module.exports.saveRedirectUrl=(req,res,next)=>{
     next();
 }
 
-module.exports.isOwner=async(req,res,next)=>{
-   let{id}=req.params;
-   let listing=await Listing.findById(id);
-    if( !currUser &&  listing.owner.equals(res.locals.currUser._id)){
-        req.flash("error","You don't have the permission to edit");
-       return res.redirect(`/listings/${id}`);
-     }
+module.exports.isOwner = async (req,res,next) =>
+    {
+      let {id} = req.params; 
+      const listing = await Listing.findById(id);
+      if(!listing.owner._id.equals(res.locals.currUser._id))
+      {
+        req.flash('error',"you are not the owner of this listing");
+        return res.redirect('/listings/${id}');
+      }
+      next();
+    }
+
+   module.exports. validateListing = (req, res, next) => {
+        const { error } = listingSchema.validate(req.body); // Validate the request body
+        if (error) {
+            const errMsg = error.details.map((el) => el.message).join(", "); // Collect error messages
+            throw new ExpressError(400, errMsg); // Throw a new error with the messages
+        } else {
+            next(); // If validation passes, proceed to the next middleware
+        }
+    };
+
+    
+module.exports. validateReview=(req,res,next)=>{
+    let {error}=reviewSchema.validate(req.body);
+    if(error){
+        let errMsg=error.details.map((el)=>el.message).join(",");
+    }
+    if(result.error){
+        throw new ExpressError(400,errMsg)
+    }else{
+        next();
+    }
 }

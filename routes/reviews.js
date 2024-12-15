@@ -5,18 +5,7 @@ const ExpressError=require( "../utils/ExpressErrors.js");
 const {listingSchema, reviewSchema}=require("../Schema.js");
 const Review =require("../models/reviews.js");
 const Listing =require("../models/listing.js");
-
-const validateReview=(req,res,next)=>{
-    let {error}=reviewSchema.validate(req.body);
-    if(error){
-        let errMsg=error.details.map((el)=>el.message).join(",");
-    }
-    if(result.error){
-        throw new ExpressError(400,errMsg)
-    }else{
-        next();
-    }
-}
+const { validateReview } = require("../middleware.js");
 
 
 
