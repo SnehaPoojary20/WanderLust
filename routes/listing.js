@@ -5,7 +5,9 @@ const {listingSchema}=require("../Schema.js");
 const ExpressError=require( "../utils/ExpressErrors.js");
 const Listing =require("../models/listing.js");
 const User =require("../models/user.js");
-const isLoggedin=require("../middleware.js");
+const { isLoggedin } = require("../middleware");
+const { saveRedirectUrl } = require("../middleware");
+const { isOwner } = require("../middleware");
 
 const validateListing = (req, res, next) => {
     const { error } = listingSchema.validate(req.body); // Validate the request body
@@ -45,10 +47,10 @@ router.get("/",wrapAsync(async(req,res)=>{
     
     //Create Route
    router.post("/",validateListing, wrapAsync(async(req,res,next)=>{
-     let result=listingSchema.validate(req.body);
+    //  let result=listingSchema.validate(req.body);
      console.log(result);
     const newlisting= new Listing(req.body.listing);
-    
+    newlisting.owner=req.user.id;
     await newlisting.save();
     req.flash("sucess","New Listing created");
    return res.redirect("/listings")
@@ -58,7 +60,7 @@ router.get("/",wrapAsync(async(req,res)=>{
     }));
     
 // Edit Route
-router.get("/:id/edit",isLoggedin,wrapAsync(async(req,res)=>{
+router.get("/:id/edit",isOwner,isLoggedin,wrapAsync(async(req,res)=>{
     let{id}=req.params;
     const listing= await Listing.findById(id);
     if(!listing){
@@ -69,14 +71,12 @@ router.get("/:id/edit",isLoggedin,wrapAsync(async(req,res)=>{
 }));
 
 //Update Route
-router.put("/:id" ,isLoggedin,validateListing, wrapAsync(async(req,res)=>{
-    if(!req.body.listing){
-        throw new ExpressError(400,"Send valid listing")
-    }
-    let{id}=req.params;
+router.put("/:id" ,isOwner,isLoggedin,validateListing, wrapAsync(async(req,res)=>{
+   let{id}=req.params;
+ 
    await Listing.findByIdAndUpdate(id,{...req.body.listing});
    req.flash("sucess","Listing Updated !");
-    return res.redirect(`/listings/${id}`);
+   return res.redirect(`/listings/${id}`);
 }));
 
 //Delete Route
