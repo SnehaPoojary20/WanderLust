@@ -6,19 +6,19 @@ const User =require("../models/user.js");
 const { isLoggedin ,saveRedirectUrl,isOwner ,validateListing } =require("../middleware.js");
 const listingController= require("../controllers/listing.js");
 const multer  = require('multer')
-const upload = multer({ dest: 'uploads/' })
+const {storage}= require("../cloudConfig.js")
+const upload = multer({ storage })
 
 router
 .route("/")
 .get(wrapAsync(listingController.index))
-// .post(
-//     isLoggedin,
-//     validateListing, 
-//     wrapAsync(listingController.createListing)
-// );
-.post(upload.single('listing[image]'),(req,res)=>{
-    res.send(req.file);
-})
+.post(
+    isLoggedin,
+    validateListing, 
+    upload.single("listing[image]"),
+    wrapAsync(listingController.createListing)
+);
+
 
 //New Route
 router.get("/new",isLoggedin,listingController.renderNewForm);
@@ -26,7 +26,11 @@ router.get("/new",isLoggedin,listingController.renderNewForm);
 router.
 route("/:id")
 .get(wrapAsync(listingController.showListing))
-.put(isLoggedin,isOwner, validateListing, wrapAsync(listingController))
+.put(isLoggedin,
+    isOwner,
+    upload.single("listing[image]"),
+    validateListing, 
+    wrapAsync(listingController))
 .delete(isLoggedin,isOwner, wrapAsync(listingController.deleteListing));    
 
 // Edit Route
