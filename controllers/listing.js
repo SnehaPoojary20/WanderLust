@@ -43,7 +43,7 @@ module.exports.createListing = async (req, res, next) => {
   return res.redirect("/listings");
 };
 
-
+// render editing form
 module.exports.editListing = async (req, res) => {
   let { id } = req.params;
   const listing = await Listing.findById(id);
@@ -51,7 +51,10 @@ module.exports.editListing = async (req, res) => {
     req.flash("error", "Listing you requested for does not exist");
     return res.redirect("/listings");
   }
-  res.render("listings/edit.ejs", { listing });
+
+  let originalImageurl=listing.image.url;
+  originalImageurl.replace("/upload","/upload/h_300,w_250");
+  res.render("listings/edit.ejs", { listing,originalImageurl });
 };
 
 
